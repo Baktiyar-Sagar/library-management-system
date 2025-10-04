@@ -4,6 +4,7 @@ from django.contrib.auth import login
 from django.db.models import Q
 from .models import Book, Review, Category
 from .forms import BookForm, ReviewForm, CustomUserCreationForm
+from django.core.paginator import Paginator
 # Create your views here.
 
 
@@ -26,28 +27,42 @@ def register(request):
             return redirect("book_list")
     else:
         form = CustomUserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+    return render(request, "user/register.html", {"form": form})
 
 
 # Book List
 def book_list(request):
     searchQ = request.GET.get("q")
-    category_filter = request.GET.get("category")
+    categoryQ= request.GET.get("category")
     books = Book.objects.all()
 
     if searchQ:
-        books = books.filter(Q(title__icontains=searchQ) | Q(author__icontains=searchQ))
-    if category_filter:
-        books = books.filter(category__name=category_filter)
+        books = books.filter(Q(title__icontains=searchQ) | Q(author__icontains=searchQ)).distinct()
+    if categoryQ:
+        books = books.filter(category__name=categoryQ)
 
-    categories = Category.objects.all()
-    return render(request, "books/book_list.html", {"books": books, "categories": categories})
+    paginator = Paginator(books, 6) # per page 6 post
+    page_number = request.GET.get('page')
+    page_object = paginator.get_page(page_number)
+
+    context = {
+        'page_object' : page_object,
+        "books": books,
+        "categories": Category.objects.all(),
+        'search_query': searchQ,
+        'category_query': categoryQ,
+        }
+    return render(request, "books_management/book_list.html", context)
 
 
 # Book Detail + Add Review
 def book_detail(request, id):
     book = get_object_or_404(Book, id=id)
     reviews = book.reviews.all()
+
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(book=book, user=request.user).first()
 
     if request.method == "POST" and request.user.is_authenticated:
         form = ReviewForm(request.POST)
@@ -63,10 +78,31 @@ def book_detail(request, id):
     context = {
         "book": book,
         "reviews": reviews, 
-        "form": form
+        "form": form,
+        "user_review": user_review,
     }
 
-    return render(request, "books/book_detail.html", context)
+    return render(request, "books_management/book_detail.html", context)
+
+def edit_review(request, id):
+    book = get_object_or_404(Book, id=id)
+
+    # Getting the existing review by this user
+    review = Review.objects.filter(book=book, user=request.user).first()
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            new_review = form.save(commit=False)
+            new_review.user = request.user
+            new_review.book = book
+            new_review.save()
+            return redirect("book_detail", id=book.id)
+    else:
+        form = ReviewForm(instance=review)  
+
+    return render(request, "books_management/edit_review.html", {"form": form, "book": book,})
+
 
 
 # Admin: Add Book
@@ -81,7 +117,7 @@ def add_book(request):
             return redirect("book_list")
     else:
         form = BookForm()
-    return render(request, "books/add_book.html", {"form": form})
+    return render(request, "books_management/add_book.html", {"form": form})
 
 
 # Admin: Update Book
@@ -95,7 +131,7 @@ def update_book(request, id):
             return redirect("book_detail", id=book.id)
     else:
         form = BookForm(instance=book)
-    return render(request, "books/update_book.html", {"form": form})
+    return render(request, "books_management/update_book.html", {"form": form})
 
 
 # Admin: Delete Book

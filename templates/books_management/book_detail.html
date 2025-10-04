@@ -1,0 +1,118 @@
+{% extends "books_management/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="max-w-6xl mx-auto p-6 space-y-8">
+
+    <!-- Book Info -->
+    <div class="card lg:card-side bg-base-100 shadow-lg overflow-hidden rounded-lg">
+        {% if book.cover_image %}
+            <figure class="w-full lg:w-1/3 h-auto">
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="object-cover w-full h-full" />
+            </figure>
+        {% endif %}
+
+        <div class="card-body flex flex-col justify-between p-6">
+            <h2 class="card-title text-3xl font-bold">{{ book.title }}</h2>
+            <p class="text-gray-500 italic text-lg">By {{ book.author }}</p>
+
+            {% if book.category %}
+                <span class="badge badge-success mt-2">{{ book.category.name }}</span>
+            {% endif %}
+
+            {% if book.average_rating %}
+                <p class="text-yellow-500 font-semibold mt-2">⭐ Average Rating: {{ book.average_rating }} 
+                    <span class="text-black ms-4">({{ book.reviews.count }} reviews)</span></p>
+                
+            {% else %}
+                <p class="text-gray-400 font-semibold mt-2">No ratings yet</p>
+            {% endif %}
+
+            <div class="divider my-4"></div>
+
+            <p class="text-sm text-gray-700">{{ book.description }}</p>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="space-y-6">
+        <h3 class="text-2xl font-bold">Reviews</h3>
+
+        {% if reviews %}
+            <div class="space-y-4">
+                {% for review in reviews %}
+                    <div class="card bg-base-200 p-4 rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <p class="font-semibold">{{ review.user.username }}</p>
+                            <span class="text-yellow-500 font-bold">⭐ {{ review.rating }}</span>
+                        </div>
+                        <p class="text-gray-600 mt-2">{{ review.comment }}</p>
+                        {% if review.was_updated %}
+                            <div class="flex">
+                                <p class="text-xs text-gray-400 mt-1">{{ review.created_at|date:"M d, Y H:i" }}</p>
+                                <p class="text-xs text-gray-400 mt-1">{{ review.updated_at|date:"M d, Y H:i" }}</p>
+                            </div>
+                        {% else %}
+                            <p class="text-xs text-gray-400 mt-1">{{ review.updated_at|date:"M d, Y H:i" }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500">No reviews yet. Be the first to review!</p>
+        {% endif %}
+    </div>
+
+    <!-- Add Review Form -->
+    {% comment %} {% if user.is_authenticated %}
+        <div class="card bg-base-100 p-6 rounded-lg shadow-md">
+            <h3 class="text-xl font-bold mb-4">Add a Review</h3>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                {{ form | crispy }}
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="text-gray-500">
+            You must be <a href="{% url 'login' %}" class="link link-primary">logged in</a> to post a review.
+        </p>
+    {% endif %} {% endcomment %}
+
+
+    {% if user.is_authenticated %}
+        {% if user_review %}
+            <div class="card bg-base-100 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold mb-4">Your Review</h3>
+                <div class="card bg-base-200 p-4 rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-yellow-500 font-bold">⭐ {{ user_review.rating }}</span>
+                        </div>
+                        <p class="text-gray-600 mt-2">Rating: {{ user_review.comment }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ user_review.updated_at|date:"M d, Y H:i" }}</p>
+                    </div>
+
+                <a href="{% url 'edit_review' book.id %}" class="btn btn-warning">Edit Review</a>
+            </div>
+        {% else %}
+            <div class="card bg-base-100 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold mb-4">Add a Review</h3>
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    {{ form | crispy }}
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-gray-500">
+            You must be <a href="{% url 'login' %}" class="link link-primary">logged in</a> to post a review.
+        </p>
+    {% endif %}
+
+
+</div>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'books_management/base.html' %}
+{% block title %}Books{% endblock %}
+{% block content %}
+
+<div class="my-4">
+    <form method="get" class="flex flex-wrap justify-center gap-2 mb-6">
+        <!-- Search -->
+        <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search by title or author..."
+            class="input input-bordered w-full max-w-xs" />
+
+        <!-- Category Filter -->
+        <select name="category" class="select select-bordered">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+                <option value="{{ category.name }}" {% if category_query == category.name %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
+<div class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">    
+    {% for book in page_object %}
+        <div class="card flex flex-col lg:flex-row bg-base-100 shadow-lg overflow-hidden rounded-lg transition hover:shadow-xl">
+            
+            {% if book.cover_image %}
+                <figure class="w-full lg:w-[150px] h-[225px] flex-shrink-0 overflow-hidden">
+                    <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" 
+                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+                </figure>
+            {% endif %}
+
+            <div class="card-body flex flex-col justify-between p-4">
+                <!-- Title & Author -->
+                <div>
+                    <h3 class="card-title text-lg font-bold line-clamp-2">{{ book.title }}</h3>
+                    <div class="flex items-center">
+                        <p class=" text-gray-400 font-semibold italic text-sm">By {{ book.author }} 
+                        {% if book.category %}
+                            <div class="badge badge-success text-xs">{{ book.category.name }}</div>
+                        {% endif %}</p>
+                    </div>
+                    
+                    <p class="line-clamp-3 text-sm mt-2">{{ book.description|safe|truncatewords:20 }}</p>
+                </div>
+
+                <div>
+                    
+
+                    <div class="card-actions justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <p class="text-sm text-gray-500">⭐ {{ book.average_rating|default:"No rating" }}</p>
+                        </div>
+                        <a href="{% url 'book_detail' id=book.id %}" class="btn btn-sm btn-outline btn-warning">Review</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-center col-span-full text-gray-500">No books found.</p>
+    {% endfor %}
+</div>
+
+
+
+<!-- Pagination -->
+<div class=" flex justify-center mt-6">
+    <div class="join">
+        {% if page_object.has_previous %}
+            <a class="join-item btn" href="?page={{ page_object.previous_page_number }}">«</a>
+        {% endif %}
+        <button class="join-item btn btn-active">{{ page_object.number }}</button>
+        {% if page_object.has_next %}
+            <a class="join-item btn" href="?page={{ page_object.next_page_number }}">»</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "books_management/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Add Book{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Add a New Book</h2>
+    <form method="post" class="space-y-4">
+       {% csrf_token %} 
+       {{form.media}}{{form | crispy}}       
+        <button class="btn btn-primary">ADD</button>
+    </form>
+</div>
+{% endblock %}
