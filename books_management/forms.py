@@ -20,8 +20,27 @@ class CustomUserCreationForm(UserCreationForm):
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
-        fields = ["title", "author", "category", "cover_image", "description"]
-       
+        exclude = [ 'added_by' , 'created_at' , 'updated_at'   ]
+        widgets = {
+                'title': forms.TextInput(attrs={
+                    'class': 'input input-bordered w-full',
+                    'placeholder': 'Enter book title'
+                }),
+                'author': forms.TextInput(attrs={
+                    'class': 'input input-bordered w-full',
+                    'placeholder': 'Enter author name'
+                }),
+                'category': forms.Select(attrs={
+                    'class': 'select select-bordered w-full'
+                }),
+                'description': forms.Textarea(attrs={
+                    'class': 'textarea textarea-bordered w-full',
+                    'placeholder': 'Enter book description'
+                }),
+                'cover_image': forms.ClearableFileInput(attrs={
+                    'class': 'file-input file-input-success file-input-primary w-full'
+                }),
+            }
 
 
 class ReviewForm(forms.ModelForm):

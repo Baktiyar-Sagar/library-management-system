@@ -51,10 +51,20 @@
                     
 
                     <div class="card-actions justify-between items-center">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1">
                             <p class="text-sm text-gray-500">⭐ {{ book.average_rating|default:"No rating" }}</p>
+                            {% if book.reviews.count != 0  %}
+                                <p class="text-sm text-gray-500">({{ book.reviews.count }})</p>
+                            {% endif %}
                         </div>
-                        <a href="{% url 'book_detail' id=book.id %}" class="btn btn-sm btn-outline btn-warning">Review</a>
+                        <div>
+                            <a href="{% url 'book_detail' id=book.id %}" class="btn btn-sm btn-outline btn-warning">Review</a>
+                        {% if user.is_authenticated and user.is_staff %}
+                        <a href="{% url "delete_book" id=book.id %}" 
+                            onclick="return confirm('Are you sure you want to delete this book?');" class="btn btn-sm btn-error">Delete</a>
+                        {% endif %}
+                        </div>
+                        
                     </div>
                 </div>
             </div>

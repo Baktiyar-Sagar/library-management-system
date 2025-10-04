@@ -7,7 +7,7 @@
     <div class="card lg:card-side bg-base-100 shadow-lg overflow-hidden rounded-lg">
         {% if book.cover_image %}
             <figure class="w-full lg:w-1/3 h-auto">
-                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="object-cover w-full h-full" />
+                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="object-contain w-full h-auto rounded-lg shadow-md" />
             </figure>
         {% endif %}
 
@@ -47,12 +47,12 @@
                         </div>
                         <p class="text-gray-600 mt-2">{{ review.comment }}</p>
                         {% if review.was_updated %}
-                            <div class="flex">
-                                <p class="text-xs text-gray-400 mt-1">{{ review.created_at|date:"M d, Y H:i" }}</p>
-                                <p class="text-xs text-gray-400 mt-1">{{ review.updated_at|date:"M d, Y H:i" }}</p>
+                            <div class="flex gap-2">
+                                <p class="text-xs text-gray-400 mt-1">Created: {{ review.created_at|date:"M d, Y h:i A" }}</p>
+                                <p class="text-xs text-blue-300 mt-1">Last Updated: {{ review.updated_at|date:"M d, Y h:i A" }}</p>
                             </div>
                         {% else %}
-                            <p class="text-xs text-gray-400 mt-1">{{ review.updated_at|date:"M d, Y H:i" }}</p>
+                            <p class="text-xs text-gray-400 mt-1">Created: {{ review.created_at|date:"M d, Y h:i A" }}</p>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -88,7 +88,14 @@
                             <span class="text-yellow-500 font-bold">⭐ {{ user_review.rating }}</span>
                         </div>
                         <p class="text-gray-600 mt-2">Rating: {{ user_review.comment }}</p>
-                        <p class="text-xs text-gray-400 mt-1">{{ user_review.updated_at|date:"M d, Y H:i" }}</p>
+                        {% if user_review.was_updated %}
+                            <div class="flex gap-2">
+                                <p class="text-xs text-gray-400 mt-1">Created: {{ user_review.created_at|date:"M d, Y h:i A" }}</p>
+                                <p class="text-xs text-blue-300 mt-1">Last Updated: {{ user_review.updated_at|date:"M d, Y h:i A" }}</p>
+                            </div>
+                        {% else %}
+                            <p class="text-xs text-gray-400 mt-1">Created:{{ user_review.created_at|date:"M d, Y h:i A" }}</p>
+                        {% endif %}
                     </div>
 
                 <a href="{% url 'edit_review' book.id %}" class="btn btn-warning">Edit Review</a>
