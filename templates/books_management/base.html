@@ -1,68 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Online Book{% endblock %}</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      {% block title %}
+        Online Book
+      {% endblock %}
+    </title>
     <!-- Tailwind CSS via CDN -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+    <body class="min-h-screen flex flex-col">
+        <div class="navbar bg-gradient-to-r from-[#046169] to-[#217b7e] text-white shadow-md">
+        <!-- Navbar Start (Logo + Mobile Dropdown) -->
+        <div class="navbar-start">
+            <!-- Mobile dropdown button -->
+            <div class="dropdown">
+                <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+                        </svg>
+                </div>
 
-</head>
-<body class="min-h-screen flex flex-col">
-    <nav class="navbar bg-gradient-to-r from-[#046169] to-[#217b7e] text-white shadow-lg p-4 flex-none">
-        <div class="flex-1">
-            <a href="{% url 'book_list' %}" class="text-2xl font-bold hover:scale-105 transition-transform duration-200">
-                Online Book
-            </a>
+            <!-- Mobile Dropdown Menu -->
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-black rounded-box w-52">
+                    {% if user.is_authenticated and user.is_staff %}
+                        <li>
+                            <a class="text-green-600 font-semibold">Admin Panel</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'add_category' %}" class="btn btn-sm btn-success">+ Add Category</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'add_book' %}" class="btn btn-sm btn-soft btn-warning">+ Add Book</a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <li>
+                            <details>
+                                <summary>👤 {{ user.username }}</summary>
+                                <ul class="p-2">
+                                    <li>
+                                        <form method="POST" action="{% url 'logout' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-red-500">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </details>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+            </ul>
+            </div>
+
+            <a href="{% url 'book_list' %}" class="btn btn-ghost normal-case text-xl font-bold">Online Book</a>
         </div>
-        <div class="flex-none space-x-4">
-            {% if user.is_authenticated and user.is_staff%}
-                <a href="{% url 'add_book' %}" class="btn btn-success btn-sm hover:scale-105 transition-transform">+ Add New Book</a>
-                <div class="dropdown dropdown-end">
-                    <label tabindex="0" class="btn btn-outline btn-sm m-1 text-white border-white hover:bg-white hover:text-indigo-600 transition-colors duration-200">
-                        👤 {{ user.username }}
-                    </label>
-                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-white rounded-box w-52">
-                        {% comment %} <li><a href="{% url 'profile' %}" class="btn btn-sm btn-soft btn-accent w-full">Profile</a></li> {% endcomment %}
-                        <form method="POST" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn w-full btn-sm btn-soft btn-error text-left px-4 py-2">
-                                Logout
-                            </button>
-                        </form>
-                    </ul>
-                </div>
-            {% elif user.is_authenticated %}
-                <div class="dropdown dropdown-end">
-                    <label tabindex="0" class="btn btn-outline btn-sm m-1 text-white border-white hover:bg-white hover:text-indigo-600 transition-colors duration-200">
-                        👤 {{ user.username }}
-                    </label>
-                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-white rounded-box w-52">
-                        {% comment %} <li><a href="{% url 'profile' %}" class="btn btn-sm btn-soft btn-accent w-full">Profile</a></li> {% endcomment %}
-                        <form method="POST" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn w-full btn-sm btn-soft btn-error text-left px-4 py-2">
-                                Logout
-                            </button>
-                        </form>
-                    </ul>
-                </div>
+
+        <!-- Navbar Center (Only visible for Admin, on large screens ) -->
+        {% if user.is_authenticated and user.is_staff %}
+            <div class="navbar-center hidden lg:flex">
+            <h3 class="text-lg text-green-400 font-bold">Admin Panel</h3>
+            </div>
+        {% endif %}
+
+        <!-- Navbar End (Right side, visible on large screens) -->
+        <div class="navbar-end hidden lg:flex space-x-3 me-5">
+            
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'add_category' %}" class="btn btn-sm btn-outline btn-warning">+ Add Category</a>
+                <a href="{% url 'add_book' %}" class="btn btn-sm btn-success">+ Add Book</a>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+            <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-indigo-600">👤 {{ user.username }}</label>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-white text-black rounded-box w-52">
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-error w-full text-left">Logout</button>
+                    </form>
+                </ul>
+            </div>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-indigo-600 transition-colors duration-200">Login</a>
-                <a href="{% url 'register' %}" class="btn btn-sm btn-primary hover:scale-105 transition-transform duration-200">Register</a>
+                <a href="{% url 'login' %}" class="btn btn-sm btn-outline border-white text-white hover:bg-white hover:text-indigo-600">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-sm btn-primary">Register</a>
             {% endif %}
         </div>
-</nav>
+        </div>
 
+        <main class="container flex-grow bg-[#F9F5F0] mx-auto p-6">
+            {% block content %}
 
-    <main class=" container flex-grow bg-[#F9F5F0] mx-auto p-6">
-        {% block content %}
+            {% endblock %}
+        </main>
 
-        {% endblock %}
-    </main>
-
-    <footer class=" mt-auto footer footer-center p-4 bg-gradient-to-r from-[#046169] to-[#217b7e] text-base-content">
-        <p>© 2025 Online Library - All rights reserved</p>
-    </footer>
-</body>
+        <footer class="mt-auto footer footer-center p-4 bg-gradient-to-r from-[#046169] to-[#217b7e] text-base-content">
+            <p>© 2025 Online Library - All rights reserved</p>
+        </footer>
+    </body>
 </html>

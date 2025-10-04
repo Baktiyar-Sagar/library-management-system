@@ -2,12 +2,16 @@
 {% load crispy_forms_tags %}
 {% block title %}Add Book{% endblock %}
 {% block content %}
-<div class="max-w-xl mx-auto">
-    <h2 class="text-2xl font-bold mb-4">Add a New Book</h2>
-    <form method="post" enctype="multipart/form-data" class="space-y-4">
-       {% csrf_token %} 
-       {{form.media}} {{form | crispy}}       
-        <button class="btn btn-primary">ADD</button>
+<div class="max-w-2xl mx-auto bg-blue-200 shadow-lg rounded-2xl p-8 mt-10">
+    <h2 class="text-3xl font-bold text-center mb-6 text-primary">Add a New Book</h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form| crispy }}
+        <button type="submit" class="btn btn-success w-full mt-4">
+            + Add Book
+        </button>
     </form>
 </div>
 {% endblock %}

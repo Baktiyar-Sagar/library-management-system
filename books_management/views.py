@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login
 from django.db.models import Q
 from .models import Book, Review, Category
-from .forms import BookForm, ReviewForm, CustomUserCreationForm
+from .forms import BookForm, ReviewForm, CustomUserCreationForm, CategoryForm
 from django.core.paginator import Paginator
 # Create your views here.
 
@@ -104,6 +104,17 @@ def edit_review(request, id):
     return render(request, "books_management/edit_review.html", {"form": form, "book": book,})
 
 
+# Admin: Add Category
+@user_passes_test(is_admin)
+def add_category(request):
+    if request.method == "POST":
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("book_list") 
+    else:
+        form = CategoryForm()
+    return render(request, "books_management/add_category.html", {"form": form, "categories":Category.objects.all()})
 
 # Admin: Add Book
 @user_passes_test(is_admin)

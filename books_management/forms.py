@@ -1,7 +1,8 @@
 from django import forms
+from django.forms import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Book, Review
+from .models import Book, Review ,Category
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -53,3 +54,21 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
         fields = ["rating", "comment"]
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Enter category name'
+            }),
+        }
+        
+    def clean_name(self):
+        name = self.cleaned_data.get("name").strip()
+        if Category.objects.filter(name__iexact=name).exists():
+            raise ValidationError("This category already exists.")
+        return name
