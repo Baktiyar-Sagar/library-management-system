@@ -1,0 +1,17 @@
+{% extends "books_management/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Update Book{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-blue-200 shadow-lg rounded-2xl p-8 mt-10">
+    <h2 class="text-3xl font-bold text-center mb-6 text-primary">Update the Book</h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form| crispy }}
+        <button type="submit" class="btn btn-primary w-full mt-4">
+            + Update Book
+        </button>
+    </form>
+</div>
+{% endblock %}

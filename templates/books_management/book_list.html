@@ -60,6 +60,7 @@
                         <div>
                             <a href="{% url 'book_detail' id=book.id %}" class="btn btn-sm btn-outline btn-warning">Review</a>
                         {% if user.is_authenticated and user.is_staff %}
+                        <a href="{% url "update_book" id=book.id %}"  class="btn btn-sm btn-outline btn-primary">Update</a>
                         <a href="{% url "delete_book" id=book.id %}" 
                             onclick="return confirm('Are you sure you want to delete this book?');" class="btn btn-sm btn-error">Delete</a>
                         {% endif %}
